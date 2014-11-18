@@ -1,0 +1,34 @@
+apply plugin: 'com.android.library'
+apply from: '../maven_publish.gradle'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    testBuildType "debug"
+
+    defaultConfig {
+        testInstrumentationRunner "com.google.android.apps.common.testing.testrunner.GoogleInstrumentationTestRunner"
+        targetSdkVersion 21
+        versionCode Integer.parseInt(project.VERSION_CODE)
+        minSdkVersion 8
+        versionName project.VERSION_NAME
+
+        testApplicationId "it.subito.masaccio.test"
+    }
+
+    buildTypes {
+        debug {
+            testCoverageEnabled true
+        }
+    }
+
+    packagingOptions {
+        exclude 'LICENSE.txt'
+    }
+}
+
+dependencies {
+    androidTestCompile 'com.jakewharton.espresso:espresso:1.1-r3'
+    androidTestCompile 'com.squareup:fest-android:1.0.7'
+}

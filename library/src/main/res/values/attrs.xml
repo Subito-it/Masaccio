@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="MasaccioImageView">
+        <attr name="auto_face" format="boolean"/>
+        <attr name="offset_x" format="reference|float"/>
+        <attr name="offset_y" format="reference|float"/>
+        <!-- TODO offset rules? -->
+        <attr name="animation_duration" format="reference|integer"/>
+        <attr name="animation_interpolator" format="reference"/>
+        <attr name="animation_start_scale" format="reference|float"/>
+        <attr name="animation_start_x" format="reference|float"/>
+        <attr name="animation_start_y" format="reference|float"/>
+        <attr name="animation_end_scale" format="reference|float"/>
+        <attr name="animation_end_x" format="reference|float"/>
+        <attr name="animation_end_y" format="reference|float"/>
+    </declare-styleable>
+
+</resources>
