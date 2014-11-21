@@ -436,6 +436,18 @@ public class MasaccioImageView extends ImageView {
         }
     }
 
+    @Override
+    protected void onLayout(final boolean changed, final int left, final int top, final int right,
+            final int bottom) {
+
+        super.onLayout(changed, left, top, right, bottom);
+
+        if (changed) {
+
+            applyCrop();
+        }
+    }
+
     private void applyCrop() {
 
         setImageDrawable(getDrawable());
