@@ -38,6 +38,16 @@ import java.util.WeakHashMap;
 
 public class MasaccioImageView extends ImageView {
 
+    public static final int FLAG_IF_FACE = 0x10;
+
+    public static final int FLAG_LANDSCAPE = 0x2;
+
+    public static final int FLAG_NO_FACE = 0x8;
+
+    public static final int FLAG_PORTRAIT = 0x1;
+
+    public static final int FLAG_SQUARE = 0x4;
+
     private static final float FACE_POSITION_RATIO_X = 0.5f;
 
     private static final float FACE_POSITION_RATIO_Y = 0.5f;
@@ -46,13 +56,21 @@ public class MasaccioImageView extends ImageView {
 
     private static DefaultMasaccioFaceDetector sFaceDetector;
 
+    public final ZeroInterpolator mDefaultInterpolator = new ZeroInterpolator();
+
     private final Matrix mAnimMatrix = new Matrix();
+
+    private int mActivateDetectionFlags;
+
+    private int mActivateMatrixFlags;
 
     private long mAnimationDuration;
 
     private boolean mAutoFaceDetection;
 
     private CropRunnable mCropRunnable;
+
+    private boolean mCyclicAnimation;
 
     private Face[] mDetectedFaces;
 
@@ -69,10 +87,6 @@ public class MasaccioImageView extends ImageView {
     private Interpolator mInterpolator;
 
     private Handler mMessageHandler;
-
-    private float mOffsetX = -1;
-
-    private float mOffsetY = -1;
 
     private ScaleType mOriginalScaleType;
 
@@ -117,15 +131,80 @@ public class MasaccioImageView extends ImageView {
         return sFaceDetector;
     }
 
-    public void resetOffset() {
+    private static boolean enabledDimensions(final int width, final int height, final int flags) {
 
-        mOffsetX = -1;
-        mOffsetY = -1;
+        boolean enabled = !hasAnyFlag(flags, FLAG_PORTRAIT | FLAG_LANDSCAPE | FLAG_SQUARE);
 
-        applyCrop();
+        if ((width > height) && hasAllFlags(flags, FLAG_LANDSCAPE)) {
+
+            enabled = true;
+
+        } else if ((width < height) && hasAllFlags(flags, FLAG_PORTRAIT)) {
+
+            enabled = true;
+
+        } else if (hasAllFlags(flags, FLAG_SQUARE)) {
+
+            enabled = true;
+        }
+
+        return enabled;
     }
 
-    public void setAutoFaceDetection(final boolean enabled) {
+    private static boolean hasAllFlags(final int value, final int flags) {
+
+        return (value & flags) == flags;
+    }
+
+    private static boolean hasAnyFlag(final int value, final int flags) {
+
+        return (value & flags) != 0;
+    }
+
+    public void setActivateDetectionFlags(final int flags) {
+
+        final boolean isUpdate = (mActivateDetectionFlags != flags);
+
+        mActivateDetectionFlags = flags;
+
+        if (isUpdate) {
+
+            applyCrop();
+        }
+    }
+
+    public void setActivateMatrixFlags(final int flags) {
+
+        final boolean isUpdate = (mActivateMatrixFlags != flags);
+
+        mActivateMatrixFlags = flags;
+
+        if (isUpdate) {
+
+            applyCrop();
+        }
+    }
+
+    public void setAnimationDuration(final long durationMs) {
+
+        mAnimationDuration = durationMs;
+    }
+
+    public void setAnimationInterpolator(final Interpolator interpolator) {
+
+        if (interpolator != null) {
+
+            mInterpolator = interpolator;
+
+        } else {
+
+            mInterpolator = mDefaultInterpolator;
+        }
+    }
+
+    public void setCenterFace(final boolean enabled) {
+
+        final boolean isUpdate = (mAutoFaceDetection != enabled);
 
         mAutoFaceDetection = enabled;
 
@@ -135,7 +214,15 @@ public class MasaccioImageView extends ImageView {
             getFaceDetector();
         }
 
-        applyCrop();
+        if (isUpdate) {
+
+            applyCrop();
+        }
+    }
+
+    public void setCyclicAnimation(final boolean isCyclic) {
+
+        mCyclicAnimation = isCyclic;
     }
 
     public void setFaces(final Face[] faces) {
@@ -228,9 +315,18 @@ public class MasaccioImageView extends ImageView {
 
             setImageMatrix(matrix);
 
+            invalidate();
+
         } else if ((startTime > 0) && (now >= endTime)) {
 
-            mStartTime = 0;
+            if (mCyclicAnimation) {
+
+                mStartTime = System.currentTimeMillis();
+
+            } else {
+
+                mStartTime = 0;
+            }
 
             final Matrix matrix = mAnimMatrix;
 
@@ -242,26 +338,102 @@ public class MasaccioImageView extends ImageView {
         super.onDraw(canvas);
     }
 
-    public void setOffsetX(final float offset) {
+    public void setPreScale(final float scale) {
 
-        mOffsetX = Math.min(1f, Math.abs(offset));
+        final boolean isUpdate = (mStartScale != scale);
 
-        applyCrop();
+        mStartScale = scale;
+
+        if (isUpdate) {
+
+            applyCrop();
+        }
     }
 
-    public void setOffsetY(final float offset) {
+    public void setPreTranslate(final float translateX, final float translateY) {
 
-        mOffsetY = Math.min(1f, Math.abs(offset));
+        final boolean isUpdate = (mStartX != translateX) || (mStartY != translateY);
 
-        applyCrop();
+        mStartX = translateX;
+        mStartY = translateY;
+
+        if (isUpdate) {
+
+            applyCrop();
+        }
     }
 
-    public void setOffsets(final float offsetX, final float offsetY) {
+    public void setPreTranslateX(final float translateX) {
 
-        mOffsetX = Math.min(1f, Math.abs(offsetX));
-        mOffsetY = Math.min(1f, Math.abs(offsetY));
+        final boolean isUpdate = (mStartX != translateX);
 
-        applyCrop();
+        mStartX = translateX;
+
+        if (isUpdate) {
+
+            applyCrop();
+        }
+    }
+
+    public void setPreTranslateY(final float translateY) {
+
+        final boolean isUpdate = (mStartY != translateY);
+
+        mStartY = translateY;
+
+        if (isUpdate) {
+
+            applyCrop();
+        }
+    }
+
+    public void setScale(final float scale) {
+
+        final boolean isUpdate = (mEndScale != scale);
+
+        mEndScale = scale;
+
+        if (isUpdate) {
+
+            applyCrop();
+        }
+    }
+
+    public void setTranslate(final float translateX, final float translateY) {
+
+        final boolean isUpdate = (mEndX != translateX) || (mEndY != translateY);
+
+        mEndX = translateX;
+        mEndY = translateY;
+
+        if (isUpdate) {
+
+            applyCrop();
+        }
+    }
+
+    public void setTranslateX(final float translateX) {
+
+        final boolean isUpdate = (mEndX != translateX);
+
+        mEndX = translateX;
+
+        if (isUpdate) {
+
+            applyCrop();
+        }
+    }
+
+    public void setTranslateY(final float translateY) {
+
+        final boolean isUpdate = (mEndY != translateY);
+
+        mEndY = translateY;
+
+        if (isUpdate) {
+
+            applyCrop();
+        }
     }
 
     private void applyCrop() {
@@ -269,7 +441,7 @@ public class MasaccioImageView extends ImageView {
         setImageDrawable(getDrawable());
     }
 
-    private void cropImage(final float originalImageWidth, final float originalImageHeight) {
+    private void cropImage(final int originalImageWidth, final int originalImageHeight) {
 
         final Handler messageHandler = mMessageHandler;
 
@@ -284,8 +456,8 @@ public class MasaccioImageView extends ImageView {
             messageHandler.removeCallbacks(mCropRunnable);
         }
 
-        if ((!mAutoFaceDetection && (mOffsetX < 0) && (mOffsetY < 0)) || (originalImageWidth <= 0)
-                || (originalImageHeight <= 0)) {
+        if ((!mAutoFaceDetection && (mEndX == 0) && (mEndY == 0) && (mEndScale == 1)) || (
+                originalImageWidth <= 0) || (originalImageHeight <= 0)) {
 
             final ScaleType scaleType = super.getScaleType();
             final ScaleType originalScaleType = mOriginalScaleType;
@@ -313,11 +485,8 @@ public class MasaccioImageView extends ImageView {
     private void getDefaultOffsets(final float[] offsets, final float maxOffsetX,
             final float maxOffsetY) {
 
-        final float offsetX = mOffsetX;
-        final float offsetY = mOffsetY;
-
-        offsets[0] = ((offsetX >= 0) ? offsetX : 0.5f) * maxOffsetX;
-        offsets[1] = ((offsetY >= 0) ? offsetY : 0.5f) * maxOffsetY;
+        offsets[0] = maxOffsetX / 2;
+        offsets[1] = maxOffsetY / 2;
     }
 
     private void getDetectedFaces(final Bitmap bitmap) {
@@ -332,13 +501,23 @@ public class MasaccioImageView extends ImageView {
 
         if (faceDetector != null) {
 
-            if (mAutoFaceDetection) {
+            final int width = bitmap.getWidth();
+            final int height = bitmap.getHeight();
 
-                mDetectedFaces = faceDetector.process(bitmap);
+            if (enabledDimensions(width, height, mActivateDetectionFlags)) {
+
+                if (mAutoFaceDetection) {
+
+                    mDetectedFaces = faceDetector.process(bitmap);
+
+                } else {
+
+                    mDetectedFaces = faceDetector.getFaces(bitmap);
+                }
 
             } else {
 
-                mDetectedFaces = faceDetector.getFaces(bitmap);
+                mDetectedFaces = null;
             }
         }
     }
@@ -405,8 +584,7 @@ public class MasaccioImageView extends ImageView {
         }
     }
 
-    private Matrix getOriginalMatrix(final float originalImageWidth,
-            final float originalImageHeight) {
+    private Matrix getOriginalMatrix(final int originalImageWidth, final int originalImageHeight) {
 
         final float frameWidth = getWidth();
         final float frameHeight = getHeight();
@@ -488,36 +666,43 @@ public class MasaccioImageView extends ImageView {
                 getContext().obtainStyledAttributes(attrs, R.styleable.MasaccioImageView, defStyle,
                                                     0);
 
+        mActivateDetectionFlags =
+                typedArray.getInt(R.styleable.MasaccioImageView_activate_face_detection, 0);
+        mActivateMatrixFlags = typedArray.getInt(R.styleable.MasaccioImageView_activate_matrix, 0);
+
         final boolean autoFaceDetection =
-                typedArray.getBoolean(R.styleable.MasaccioImageView_auto_face, false);
+                typedArray.getBoolean(R.styleable.MasaccioImageView_center_face, false);
 
-        mOffsetX = typedArray.getFloat(R.styleable.MasaccioImageView_offset_x, -1);
-        mOffsetY = typedArray.getFloat(R.styleable.MasaccioImageView_offset_y, -1);
+        mStartScale = typedArray.getFloat(R.styleable.MasaccioImageView_pre_scale, -1);
+        mStartX = typedArray.getFloat(R.styleable.MasaccioImageView_pre_translate_x, 0);
+        mStartY = typedArray.getFloat(R.styleable.MasaccioImageView_pre_translate_y, 0);
 
-        mAnimationDuration =
-                typedArray.getInt(R.styleable.MasaccioImageView_animation_duration, 1000);
+        mEndScale = typedArray.getFloat(R.styleable.MasaccioImageView_scale, -1);
+        mEndX = typedArray.getFloat(R.styleable.MasaccioImageView_translate_x, 0);
+        mEndY = typedArray.getFloat(R.styleable.MasaccioImageView_translate_y, 0);
+
+        mAnimationDuration = typedArray.getInt(R.styleable.MasaccioImageView_animation_duration, 0);
 
         final int interpolatorId =
                 typedArray.getResourceId(R.styleable.MasaccioImageView_animation_interpolator,
                                          NO_ID);
 
-        mStartScale = typedArray.getFloat(R.styleable.MasaccioImageView_animation_start_scale, -1);
-        mStartX = typedArray.getFloat(R.styleable.MasaccioImageView_animation_start_x, 0);
-        mStartY = typedArray.getFloat(R.styleable.MasaccioImageView_animation_start_y, 0);
-
-        mEndScale = typedArray.getFloat(R.styleable.MasaccioImageView_animation_end_scale, -1);
-        mEndX = typedArray.getFloat(R.styleable.MasaccioImageView_animation_end_x, 0);
-        mEndY = typedArray.getFloat(R.styleable.MasaccioImageView_animation_end_y, 0);
+        mCyclicAnimation =
+                typedArray.getBoolean(R.styleable.MasaccioImageView_cyclic_animation, false);
 
         mOriginalScaleType = getScaleType();
         mMessageHandler = new Handler();
 
-        setAutoFaceDetection(autoFaceDetection);
-
         if (interpolatorId != NO_ID) {
 
             mInterpolator = AnimationUtils.loadInterpolator(getContext(), interpolatorId);
+
+        } else {
+
+            mInterpolator = mDefaultInterpolator;
         }
+
+        setCenterFace(autoFaceDetection);
     }
 
     private void startMatrixAnimation(final Matrix start, final Matrix end, final long timeMs) {
@@ -624,11 +809,11 @@ public class MasaccioImageView extends ImageView {
 
     private class CropRunnable implements Runnable {
 
-        private final float mOriginalImageHeight;
+        private final int mOriginalImageHeight;
 
-        private final float mOriginalImageWidth;
+        private final int mOriginalImageWidth;
 
-        public CropRunnable(final float originalImageWidth, final float originalImageHeight) {
+        public CropRunnable(final int originalImageWidth, final int originalImageHeight) {
 
             mOriginalImageWidth = originalImageWidth;
             mOriginalImageHeight = originalImageHeight;
@@ -651,8 +836,8 @@ public class MasaccioImageView extends ImageView {
 
             MasaccioImageView.super.setScaleType(ScaleType.MATRIX);
 
-            final float originalImageWidth = mOriginalImageWidth;
-            final float originalImageHeight = mOriginalImageHeight;
+            final int originalImageWidth = mOriginalImageWidth;
+            final int originalImageHeight = mOriginalImageHeight;
 
             final float fitHorizontallyScaleFactor = frameWidth / originalImageWidth;
             final float fitVerticallyScaleFactor = frameHeight / originalImageHeight;
@@ -663,28 +848,50 @@ public class MasaccioImageView extends ImageView {
             final float newImageWidth = originalImageWidth * maxScaleFactor;
             final float newImageHeight = originalImageHeight * maxScaleFactor;
 
-            final Matrix matrix = new Matrix();
-
-            matrix.setScale(maxScaleFactor, maxScaleFactor);
-
-            final float[] translateOffset = new float[2];
-
             final float maxOffsetX = newImageWidth - frameWidth;
             final float maxOffsetY = newImageHeight - frameHeight;
 
+            final Matrix matrix;
             final Face[] detectedFaces = mDetectedFaces;
+            final float[] translateOffset = new float[2];
+            final int matrixFlag = mActivateMatrixFlags;
 
             if (detectedFaces != null) {
 
                 getFaceOffsets(detectedFaces, translateOffset, maxScaleFactor, newImageWidth,
                                newImageHeight, maxOffsetX, maxOffsetY);
 
+                matrix = new Matrix();
+                matrix.setScale(maxScaleFactor, maxScaleFactor);
+                matrix.postTranslate(-translateOffset[0], -translateOffset[1]);
+
+                if (hasAllFlags(matrixFlag, FLAG_NO_FACE) && !hasAllFlags(matrixFlag,
+                                                                          FLAG_IF_FACE)) {
+
+                    setImageMatrix(matrix);
+
+                    return;
+                }
+
             } else {
 
-                getDefaultOffsets(translateOffset, maxOffsetX, maxOffsetY);
+                matrix = getOriginalMatrix(originalImageWidth, originalImageHeight);
+
+                if (!hasAllFlags(matrixFlag, FLAG_NO_FACE) && hasAllFlags(matrixFlag,
+                                                                          FLAG_IF_FACE)) {
+
+                    setImageMatrix(matrix);
+
+                    return;
+                }
             }
 
-            matrix.postTranslate(-translateOffset[0], -translateOffset[1]);
+            if (!enabledDimensions(originalImageWidth, originalImageHeight, matrixFlag)) {
+
+                setImageMatrix(matrix);
+
+                return;
+            }
 
             final float endScale = mEndScale;
             final float endX = mEndX;
@@ -736,7 +943,7 @@ public class MasaccioImageView extends ImageView {
                                 / scale)));
             }
 
-            if (mInterpolator != null) {
+            if (mAnimationDuration > 0) {
 
                 final float startScale = mStartScale;
                 final float startX = mStartX;
@@ -772,8 +979,8 @@ public class MasaccioImageView extends ImageView {
                             ((newImageHeight * (scale - 1)) / 2) + translateOffset[1];
 
                     startMatrix.postTranslate(
-                            -scaledOffsetX + (Math.abs(scaledOffsetX) * (endX / scale)),
-                            -scaledOffsetY + (Math.abs(scaledOffsetY) * (endY / scale)));
+                            -scaledOffsetX + (Math.abs(scaledOffsetX) * (startX / scale)),
+                            -scaledOffsetY + (Math.abs(scaledOffsetY) * (startY / scale)));
                 }
 
                 startMatrixAnimation(startMatrix, endMatrix, mAnimationDuration);
@@ -782,6 +989,15 @@ public class MasaccioImageView extends ImageView {
 
                 setImageMatrix(endMatrix);
             }
+        }
+    }
+
+    private class ZeroInterpolator implements Interpolator {
+
+        @Override
+        public float getInterpolation(final float input) {
+
+            return 0;
         }
     }
 }

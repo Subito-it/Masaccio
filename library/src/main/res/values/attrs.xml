@@ -2,18 +2,28 @@
 <resources>
 
     <declare-styleable name="MasaccioImageView">
-        <attr name="auto_face" format="boolean"/>
-        <attr name="offset_x" format="reference|float"/>
-        <attr name="offset_y" format="reference|float"/>
-        <!-- TODO offset rules? -->
+        <attr name="activate_face_detection">
+            <flag name="portraitImage" value="0x1"/>
+            <flag name="landscapeImage" value="0x2"/>
+            <flag name="squareImage" value="0x4"/>
+        </attr>
+        <attr name="activate_matrix">
+            <flag name="portraitImage" value="0x1"/>
+            <flag name="landscapeImage" value="0x2"/>
+            <flag name="squareImage" value="0x4"/>
+            <flag name="noFace" value="0x8"/>
+            <flag name="ifFace" value="0x10"/>
+        </attr>
+        <attr name="center_face" format="reference|boolean"/>
+        <attr name="pre_scale" format="reference|float"/>
+        <attr name="pre_translate_x" format="reference|float"/>
+        <attr name="pre_translate_y" format="reference|float"/>
+        <attr name="scale" format="reference|float"/>
+        <attr name="translate_x" format="reference|float"/>
+        <attr name="translate_y" format="reference|float"/>
         <attr name="animation_duration" format="reference|integer"/>
         <attr name="animation_interpolator" format="reference"/>
-        <attr name="animation_start_scale" format="reference|float"/>
-        <attr name="animation_start_x" format="reference|float"/>
-        <attr name="animation_start_y" format="reference|float"/>
-        <attr name="animation_end_scale" format="reference|float"/>
-        <attr name="animation_end_x" format="reference|float"/>
-        <attr name="animation_end_y" format="reference|float"/>
+        <attr name="cyclic_animation" format="reference|boolean"/>
     </declare-styleable>
 
 </resources>
