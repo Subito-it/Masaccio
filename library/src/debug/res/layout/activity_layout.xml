@@ -28,6 +28,7 @@
         android:layout_height="100dp"
         masaccio:center_face="true"
         android:src="@drawable/lena"
+        android:scaleType="centerCrop"
         android:layout_gravity="center"/>
 
 </LinearLayout>
