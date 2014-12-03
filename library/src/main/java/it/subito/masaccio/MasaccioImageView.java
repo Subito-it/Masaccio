@@ -571,7 +571,7 @@ public class MasaccioImageView extends ImageView {
             final float scaledOffsetY =
                     (midPoint.y * scaleFactor) - ((height - maxOffsetY) * FACE_POSITION_RATIO_Y);
 
-            if (maxOffsetX >= 0) {
+            if (Math.round(maxOffsetX) >= 0) {
 
                 offsets[0] = Math.min(Math.max(0, scaledOffsetX), maxOffsetX);
 
@@ -580,7 +580,7 @@ public class MasaccioImageView extends ImageView {
                 offsets[0] = scaledOffsetX;
             }
 
-            if (maxOffsetY >= 0) {
+            if (Math.round(maxOffsetY) >= 0) {
 
                 offsets[1] = Math.min(Math.max(0, scaledOffsetY), maxOffsetY);
 
