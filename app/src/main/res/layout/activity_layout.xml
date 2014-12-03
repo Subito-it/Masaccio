@@ -32,6 +32,8 @@
             android:layout_width="300dp"
             android:layout_height="200dp"
             masaccio:center_face="true"
+            masaccio:activate_matrix="ifNoFace"
+            masaccio:translate_y="0.25"
             android:scaleType="centerCrop"
             android:layout_gravity="center"/>
     </FrameLayout>

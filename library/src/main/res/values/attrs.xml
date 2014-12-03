@@ -11,7 +11,7 @@
             <flag name="portraitImage" value="0x1"/>
             <flag name="landscapeImage" value="0x2"/>
             <flag name="squareImage" value="0x4"/>
-            <flag name="noFace" value="0x8"/>
+            <flag name="ifNoFace" value="0x8"/>
             <flag name="ifFace" value="0x10"/>
         </attr>
         <attr name="center_face" format="reference|boolean"/>

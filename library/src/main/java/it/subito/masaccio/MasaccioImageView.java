@@ -634,6 +634,15 @@ public class MasaccioImageView extends ImageView {
                 break;
 
             case CENTER_INSIDE:
+
+                if (Math.max(fitHorizontallyScaleFactor, fitVerticallyScaleFactor) < 1) {
+
+                    matrix.postTranslate((frameWidth - originalImageWidth) / 2,
+                                         (frameHeight - originalImageHeight) / 2);
+
+                    break;
+                }
+
             case FIT_CENTER:
 
                 matrix.setScale(minScaleFactor, minScaleFactor);
@@ -949,10 +958,9 @@ public class MasaccioImageView extends ImageView {
 
                 endMatrix.setScale(endScaleFactor, endScaleFactor);
                 endMatrix.postTranslate(
-                        -scaledTranslateOffset[0] + (Math.abs(scaledTranslateOffset[0]) * (endX
-                                / scale)),
-                        -scaledTranslateOffset[1] + (Math.abs(scaledTranslateOffset[1]) * (endY
-                                / scale)));
+                        -scaledTranslateOffset[0] + (Math.abs(endImageWidth - frameWidth) * endX),
+                        -scaledTranslateOffset[1] + (Math.abs(endImageHeight - frameHeight)
+                                * endY));
             }
 
             if (mAnimationDuration > 0) {
@@ -982,7 +990,11 @@ public class MasaccioImageView extends ImageView {
                         scale = startScale;
                     }
 
-                    startMatrix.setScale(maxScaleFactor * scale, maxScaleFactor * scale);
+                    final float startScaleFactor = maxScaleFactor * scale;
+                    final float startImageWidth = newImageWidth * scale;
+                    final float startImageHeight = newImageHeight * scale;
+
+                    startMatrix.setScale(startScaleFactor, startScaleFactor);
 
                     final float scaledOffsetX =
                             ((newImageWidth * (scale - 1)) / 2) + translateOffset[0];
@@ -991,8 +1003,8 @@ public class MasaccioImageView extends ImageView {
                             ((newImageHeight * (scale - 1)) / 2) + translateOffset[1];
 
                     startMatrix.postTranslate(
-                            -scaledOffsetX + (Math.abs(scaledOffsetX) * (startX / scale)),
-                            -scaledOffsetY + (Math.abs(scaledOffsetY) * (startY / scale)));
+                            -scaledOffsetX + (Math.abs(startImageWidth - frameWidth) * startX),
+                            -scaledOffsetY + (Math.abs(startImageHeight - frameHeight) * startY));
                 }
 
                 startMatrixAnimation(startMatrix, endMatrix, mAnimationDuration);
