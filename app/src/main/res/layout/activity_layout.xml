@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 
     Copyright (C) 2014 Subito.it S.r.l (www.subito.it)
 
@@ -18,55 +17,68 @@
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:masaccio="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <FrameLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:orientation="vertical">
+        android:layout_height="wrap_content">
 
-        <it.subito.masaccio.MasaccioImageView
-            android:id="@+id/masaccio_view"
-            android:layout_width="300dp"
-            android:layout_height="200dp"
-            masaccio:center_face="true"
-            masaccio:activate_matrix="ifNoFace"
-            masaccio:translate_y="0.25"
-            android:scaleType="centerCrop"
-            android:layout_gravity="center"/>
-    </FrameLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/download_button"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Refresh"
-            android:drawableRight="@android:drawable/stat_sys_download"
-            android:gravity="center"/>
+            android:orientation="vertical">
 
-        <Button
-            android:id="@+id/rotate_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Ratio"
-            android:drawableRight="@android:drawable/ic_menu_rotate"
-            android:gravity="center"/>
-    </LinearLayout>
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/preview_image"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:scaleType="fitCenter"
-        android:layout_gravity="center_horizontal"/>
+                <it.subito.masaccio.MasaccioImageView
+                    android:id="@+id/masaccio_view"
+                    android:layout_width="300dp"
+                    android:layout_height="200dp"
+                    android:layout_gravity="center"
+                    android:scaleType="centerCrop"
+                    masaccio:activate_matrix="ifNoFace"
+                    masaccio:center_face="true"
+                    masaccio:translate_y="0.25" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/download_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawableRight="@android:drawable/stat_sys_download"
+                    android:gravity="center"
+                    android:text="Refresh" />
+
+                <Button
+                    android:id="@+id/rotate_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawableRight="@android:drawable/ic_menu_rotate"
+                    android:gravity="center"
+                    android:text="Ratio" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/preview_image"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center_horizontal"
+                android:scaleType="fitCenter" />
+
+        </LinearLayout>
+
+    </ScrollView>
 
 </LinearLayout>
