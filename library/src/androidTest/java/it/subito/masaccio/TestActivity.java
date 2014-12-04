@@ -82,7 +82,7 @@ public class TestActivity extends ActivityInstrumentationTestCase2<ActivityUnder
         assertThat(coeffs[2]).isEqualTo(0.0f, Offset.offset(0.01f));
         assertThat(coeffs[3]).isEqualTo(0.0f, Offset.offset(0.01f));
         assertThat(coeffs[4]).isEqualTo(0.3125f, Offset.offset(0.01f));
-        assertThat(coeffs[5]).isEqualTo(-4.21875f, Offset.offset(0.01f));
+        assertThat(coeffs[5]).isEqualTo(-10.175781f, Offset.offset(0.01f));
         assertThat(coeffs[6]).isEqualTo(0.0f, Offset.offset(0.01f));
         assertThat(coeffs[7]).isEqualTo(0.0f, Offset.offset(0.01f));
         assertThat(coeffs[8]).isEqualTo(1.0f, Offset.offset(0.01f));
@@ -106,7 +106,7 @@ public class TestActivity extends ActivityInstrumentationTestCase2<ActivityUnder
         assertThat(coeffs[2]).isEqualTo(0.0f, Offset.offset(0.01f));
         assertThat(coeffs[3]).isEqualTo(0.0f, Offset.offset(0.01f));
         assertThat(coeffs[4]).isEqualTo(0.8333333f, Offset.offset(0.01f));
-        assertThat(coeffs[5]).isEqualTo(-58.75f, Offset.offset(0.01f));
+        assertThat(coeffs[5]).isEqualTo(-17.239578f, Offset.offset(0.01f));
         assertThat(coeffs[6]).isEqualTo(0.0f, Offset.offset(0.01f));
         assertThat(coeffs[7]).isEqualTo(0.0f, Offset.offset(0.01f));
         assertThat(coeffs[8]).isEqualTo(1.0f, Offset.offset(0.01f));
