@@ -14,7 +14,7 @@ buildscript {
 
 ext {
     compileSdkVersion = 21
-    buildToolsVersion = "21.0.1"
+    buildToolsVersion = '21.0.1'
 }
 
 allprojects {

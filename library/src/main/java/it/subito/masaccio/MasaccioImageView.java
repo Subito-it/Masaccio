@@ -56,7 +56,7 @@ public class MasaccioImageView extends ImageView {
 
     private static DefaultMasaccioFaceDetector sFaceDetector;
 
-    public final ZeroInterpolator mDefaultInterpolator = new ZeroInterpolator();
+    public final StepInterpolator mDefaultInterpolator = new StepInterpolator();
 
     private final Matrix mAnimMatrix = new Matrix();
 
@@ -1016,7 +1016,7 @@ public class MasaccioImageView extends ImageView {
         }
     }
 
-    private class ZeroInterpolator implements Interpolator {
+    private class StepInterpolator implements Interpolator {
 
         @Override
         public float getInterpolation(final float input) {
