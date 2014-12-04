@@ -98,6 +98,7 @@ public class DemoActivity extends Activity {
             }
         });
 
+        // register the processor so to make face detection happen in the background loading thread
         ImageLoader.getInstance()
                    .init(getStandardOptions(this, new FaceDetectionProcessor(
                            MasaccioImageView.getFaceDetector())));
