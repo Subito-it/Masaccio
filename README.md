@@ -1,4 +1,5 @@
 #Masaccio
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/it.subito/masaccio-library/badge.svg)](https://maven-badges.herokuapp.com/maven-central/it.subito/masaccio-library)
 
 This library provides a useful widget class which automatically detects the presence of faces in the source image and crop it accordingly so to achieve the best visual result.
 
