@@ -1,35 +1,39 @@
 package it.subito.masaccio.demo;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.nostra13.universalimageloader.cache.memory.impl.WeakMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.assist.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.process.BitmapProcessor;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.util.Random;
 import java.util.concurrent.Executors;
 
 import it.subito.masaccio.MasaccioImageView;
 import it.subito.masaccio.MasaccioImageView.MasaccioFaceDetector;
 
-public class DemoActivity extends Activity {
+public class DemoActivity extends ActionBarActivity {
 
     public static final int MAX_HEIGHT = 1280;
 
@@ -44,6 +48,8 @@ public class DemoActivity extends Activity {
     private MasaccioImageView mMasaccioImageView;
 
     private ImageView mPreviewImageView;
+
+    private ProgressBar mProgressBar;
 
     private static DisplayImageOptions getProcessorDisplayImageOptions(
             final BitmapProcessor processor) {
@@ -67,6 +73,7 @@ public class DemoActivity extends Activity {
         config.taskExecutor(Executors.newCachedThreadPool());
         config.threadPriority(Thread.MIN_PRIORITY);
         config.imageDownloader(new OkHttpDownloader(context));
+        config.writeDebugLogs();
 
         return config.build();
     }
@@ -77,6 +84,10 @@ public class DemoActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_layout);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        mProgressBar = (ProgressBar) findViewById(R.id.progress_spinner);
         mPreviewImageView = (ImageView) findViewById(R.id.preview_image);
         mMasaccioImageView = (MasaccioImageView) findViewById(R.id.masaccio_view);
 
@@ -102,6 +113,8 @@ public class DemoActivity extends Activity {
         ImageLoader.getInstance()
                    .init(getStandardOptions(this, new FaceDetectionProcessor(
                            MasaccioImageView.getFaceDetector())));
+
+        onDownload();
     }
 
     private void onDownload() {
@@ -113,33 +126,7 @@ public class DemoActivity extends Activity {
 
         ImageLoader.getInstance()
                    .displayImage("http://lorempixel.com/" + width + "/" + height + "/people",
-                                 mMasaccioImageView, new ImageLoadingListener() {
-
-                               @Override
-                               public void onLoadingStarted(final String imageUri,
-                                       final View view) {
-
-                               }
-
-                               @Override
-                               public void onLoadingFailed(final String imageUri, final View view,
-                                       final FailReason failReason) {
-
-                               }
-
-                               @Override
-                               public void onLoadingComplete(final String imageUri, final View view,
-                                       final Bitmap loadedImage) {
-
-                                   mPreviewImageView.setImageBitmap(loadedImage);
-                               }
-
-                               @Override
-                               public void onLoadingCancelled(final String imageUri,
-                                       final View view) {
-
-                               }
-                           });
+                                 mMasaccioImageView, new MyImageLoadingListener(this));
     }
 
     private void onRotate() {
@@ -195,6 +182,59 @@ public class DemoActivity extends Activity {
             final Request request = new Request.Builder().url(imageUri).build();
 
             return mClient.newCall(request).execute().body().byteStream();
+        }
+    }
+
+    private static class MyImageLoadingListener implements ImageLoadingListener {
+
+        private WeakReference<DemoActivity> mActivityReference;
+
+        private MyImageLoadingListener(final DemoActivity demoActivity) {
+
+            mActivityReference = new WeakReference<DemoActivity>(demoActivity);
+        }
+
+        @Override
+        public void onLoadingStarted(final String imageUri, final View view) {
+
+            final DemoActivity demoActivity = mActivityReference.get();
+
+            if (demoActivity != null) {
+
+                demoActivity.mProgressBar.setVisibility(View.VISIBLE);
+            }
+        }
+
+        @Override
+        public void onLoadingFailed(final String imageUri, final View view,
+                final FailReason failReason) {
+
+            final DemoActivity demoActivity = mActivityReference.get();
+
+            if (demoActivity != null) {
+
+                Toast.makeText(demoActivity, "Error during image download. Check lorempixel.com status", Toast.LENGTH_SHORT)
+                     .show();
+                demoActivity.mProgressBar.setVisibility(View.GONE);
+            }
+        }
+
+        @Override
+        public void onLoadingComplete(final String imageUri, final View view,
+                final Bitmap loadedImage) {
+
+            final DemoActivity demoActivity = mActivityReference.get();
+
+            if (demoActivity != null) {
+
+                demoActivity.mPreviewImageView.setImageBitmap(loadedImage);
+                demoActivity.mProgressBar.setVisibility(View.GONE);
+            }
+        }
+
+        @Override
+        public void onLoadingCancelled(final String imageUri, final View view) {
+
         }
     }
 }
