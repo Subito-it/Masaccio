@@ -1,7 +1,10 @@
 package it.subito.masaccio.demo;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
@@ -51,18 +54,22 @@ public class DemoActivity extends ActionBarActivity {
 
     private ProgressBar mProgressBar;
 
+    private int imageIndex;
+
+    private int[] imageDrawable = {R.drawable.img1, R.drawable.img2, R.drawable.img3, R.drawable.img4};
+
     private static DisplayImageOptions getProcessorDisplayImageOptions(
             final BitmapProcessor processor) {
 
         final DisplayImageOptions.Builder defaultOptionsBuilder = new DisplayImageOptions.Builder();
 
         return defaultOptionsBuilder.imageScaleType(ImageScaleType.NONE)
-                                    .postProcessor(processor)
-                                    .build();
+                .postProcessor(processor)
+                .build();
     }
 
     private static ImageLoaderConfiguration getStandardOptions(final Context context,
-            final BitmapProcessor processor) {
+                                                               final BitmapProcessor processor) {
 
         final ImageLoaderConfiguration.Builder config =
                 new ImageLoaderConfiguration.Builder(context);
@@ -91,12 +98,15 @@ public class DemoActivity extends ActionBarActivity {
         mPreviewImageView = (ImageView) findViewById(R.id.preview_image);
         mMasaccioImageView = (MasaccioImageView) findViewById(R.id.masaccio_view);
 
+        imageIndex = 0;
+
         findViewById(R.id.download_button).setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
 
-                onDownload();
+                //onDownload();
+                nextImage();
             }
         });
 
@@ -111,22 +121,46 @@ public class DemoActivity extends ActionBarActivity {
 
         // register the processor so to make face detection happen in the background loading thread
         ImageLoader.getInstance()
-                   .init(getStandardOptions(this, new FaceDetectionProcessor(
-                           MasaccioImageView.getFaceDetector())));
+                .init(getStandardOptions(this, new FaceDetectionProcessor(
+                        MasaccioImageView.getFaceDetector())));
 
-        onDownload();
+        //onDownload();
+        nextImage();
     }
 
+    /*
     private void onDownload() {
 
         ImageLoader.getInstance().cancelDisplayTask(mMasaccioImageView);
 
+        /*
         final int width = mRandom.nextInt(MAX_WIDTH - MIN_WIDTH) + MIN_WIDTH;
         final int height = mRandom.nextInt(MAX_HEIGHT - MIN_HEIGHT) + MIN_HEIGHT;
 
         ImageLoader.getInstance()
                    .displayImage("http://lorempixel.com/" + width + "/" + height + "/people",
                                  mMasaccioImageView, new MyImageLoadingListener(this));
+
+    }
+    */
+
+    private void nextImage() {
+
+        ImageLoader.getInstance().cancelDisplayTask(mMasaccioImageView);
+
+        int resId = imageDrawable[imageIndex];
+
+        String imageUri = "drawable://" + resId;
+
+        ImageLoader.getInstance()
+                .displayImage(imageUri,
+                        mMasaccioImageView, new MyImageLoadingListener(this));
+
+        imageIndex++;
+
+        if (imageIndex == 4) {
+            imageIndex = 0;
+        }
     }
 
     private void onRotate() {
@@ -170,7 +204,7 @@ public class DemoActivity extends ActionBarActivity {
         }
 
         public OkHttpDownloader(final Context context, final int connectTimeout,
-                final int readTimeout) {
+                                final int readTimeout) {
 
             super(context, connectTimeout, readTimeout);
         }
@@ -207,21 +241,21 @@ public class DemoActivity extends ActionBarActivity {
 
         @Override
         public void onLoadingFailed(final String imageUri, final View view,
-                final FailReason failReason) {
+                                    final FailReason failReason) {
 
             final DemoActivity demoActivity = mActivityReference.get();
 
             if (demoActivity != null) {
 
                 Toast.makeText(demoActivity, "Error during image download. Check lorempixel.com status", Toast.LENGTH_SHORT)
-                     .show();
+                        .show();
                 demoActivity.mProgressBar.setVisibility(View.GONE);
             }
         }
 
         @Override
         public void onLoadingComplete(final String imageUri, final View view,
-                final Bitmap loadedImage) {
+                                      final Bitmap loadedImage) {
 
             final DemoActivity demoActivity = mActivityReference.get();
 
