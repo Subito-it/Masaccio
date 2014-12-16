@@ -105,7 +105,6 @@ public class DemoActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
 
-                //onDownload();
                 nextImage();
             }
         });
@@ -124,25 +123,8 @@ public class DemoActivity extends ActionBarActivity {
                 .init(getStandardOptions(this, new FaceDetectionProcessor(
                         MasaccioImageView.getFaceDetector())));
 
-        //onDownload();
         nextImage();
     }
-
-    /*
-    private void onDownload() {
-
-        ImageLoader.getInstance().cancelDisplayTask(mMasaccioImageView);
-
-        /*
-        final int width = mRandom.nextInt(MAX_WIDTH - MIN_WIDTH) + MIN_WIDTH;
-        final int height = mRandom.nextInt(MAX_HEIGHT - MIN_HEIGHT) + MIN_HEIGHT;
-
-        ImageLoader.getInstance()
-                   .displayImage("http://lorempixel.com/" + width + "/" + height + "/people",
-                                 mMasaccioImageView, new MyImageLoadingListener(this));
-
-    }
-    */
 
     private void nextImage() {
 
@@ -247,7 +229,7 @@ public class DemoActivity extends ActionBarActivity {
 
             if (demoActivity != null) {
 
-                Toast.makeText(demoActivity, "Error during image download. Check lorempixel.com status", Toast.LENGTH_SHORT)
+                Toast.makeText(demoActivity, "Error during image loading", Toast.LENGTH_SHORT)
                         .show();
                 demoActivity.mProgressBar.setVisibility(View.GONE);
             }
