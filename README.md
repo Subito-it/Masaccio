@@ -2,6 +2,8 @@
 
 This library provides a useful widget class which automatically detects the presence of faces in the source image and crop it accordingly so to achieve the best visual result.
 
+![Masaccio](https://github.com/Subito-it/Masaccio/blob/master/masaccio_demo.gif)
+
 ##Download [![Maven Central](https://maven-badges.herokuapp.com/maven-central/it.subito/masaccio-library/badge.svg)](https://maven-badges.herokuapp.com/maven-central/it.subito/masaccio-library)
 Grab the latest version via Gradle:
 
