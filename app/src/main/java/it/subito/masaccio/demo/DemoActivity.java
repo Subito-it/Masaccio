@@ -1,10 +1,7 @@
 package it.subito.masaccio.demo;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
@@ -30,23 +27,12 @@ import com.squareup.okhttp.Request;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
-import java.util.Random;
 import java.util.concurrent.Executors;
 
 import it.subito.masaccio.MasaccioImageView;
 import it.subito.masaccio.MasaccioImageView.MasaccioFaceDetector;
 
 public class DemoActivity extends ActionBarActivity {
-
-    public static final int MAX_HEIGHT = 1280;
-
-    public static final int MAX_WIDTH = 1920;
-
-    public static final int MIN_HEIGHT = 320;
-
-    public static final int MIN_WIDTH = 480;
-
-    private final Random mRandom = new Random();
 
     private MasaccioImageView mMasaccioImageView;
 
