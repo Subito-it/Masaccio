@@ -25,6 +25,7 @@
         <attr name="animation_interpolator" format="reference"/>
         <attr name="cyclic_animation" format="reference|boolean"/>
         <attr name="min_confidence" format="reference|float"/>
+        <attr name="max_face_number" format="reference|integer"/>
     </declare-styleable>
 
 </resources>
