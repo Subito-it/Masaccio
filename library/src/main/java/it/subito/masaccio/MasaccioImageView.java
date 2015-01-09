@@ -100,6 +100,8 @@ public class MasaccioImageView extends ImageView {
 
     private float mStartY;
 
+    private float mMinConfidence;
+
     public MasaccioImageView(final Context context) {
 
         super(context);
@@ -200,6 +202,11 @@ public class MasaccioImageView extends ImageView {
 
             mInterpolator = mDefaultInterpolator;
         }
+    }
+
+    public void setMinConfidence(float minConfidence){
+
+        mMinConfidence = minConfidence;
     }
 
     public void setCenterFace(final boolean enabled) {
@@ -541,7 +548,7 @@ public class MasaccioImageView extends ImageView {
 
             Face bestFace = null;
 
-            float maxConfidence = 0;
+            float maxConfidence = mMinConfidence;
 
             for (final Face face : faces) {
 
@@ -693,6 +700,8 @@ public class MasaccioImageView extends ImageView {
 
         final boolean autoFaceDetection =
                 typedArray.getBoolean(R.styleable.MasaccioImageView_center_face, false);
+
+        mMinConfidence = typedArray.getFloat(R.styleable.MasaccioImageView_min_confidence, 0);
 
         mStartScale = typedArray.getFloat(R.styleable.MasaccioImageView_pre_scale, -1);
         mStartX = typedArray.getFloat(R.styleable.MasaccioImageView_pre_translate_x, 0);

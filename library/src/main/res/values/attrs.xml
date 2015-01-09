@@ -24,6 +24,7 @@
         <attr name="animation_duration" format="reference|integer"/>
         <attr name="animation_interpolator" format="reference"/>
         <attr name="cyclic_animation" format="reference|boolean"/>
+        <attr name="min_confidence" format="reference|float"/>
     </declare-styleable>
 
 </resources>
