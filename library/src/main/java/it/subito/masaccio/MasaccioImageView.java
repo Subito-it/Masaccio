@@ -54,7 +54,8 @@ public class MasaccioImageView extends ImageView {
 
     private static final int MAX_FACES = 4;
 
-    private static final Object sMutex = new Object();
+    private static final Map<Bitmap, Face[]> sFacesMap =
+            Collections.synchronizedMap(new WeakHashMap<Bitmap, Face[]>());
 
     public final StepInterpolator mDefaultInterpolator = new StepInterpolator();
 
@@ -86,7 +87,11 @@ public class MasaccioImageView extends ImageView {
 
     private Interpolator mInterpolator;
 
+    private int mMaxFaceNumber;
+
     private Handler mMessageHandler;
+
+    private float mMinConfidence;
 
     private ScaleType mOriginalScaleType;
 
@@ -99,13 +104,6 @@ public class MasaccioImageView extends ImageView {
     private float mStartX;
 
     private float mStartY;
-
-    private float mMinConfidence;
-
-    private int mMaxFaceNumber;
-
-    private static final Map<Bitmap, Face[]> sFacesMap =
-            Collections.synchronizedMap(new WeakHashMap<Bitmap, Face[]>());
 
     public MasaccioImageView(final Context context) {
 
@@ -204,16 +202,6 @@ public class MasaccioImageView extends ImageView {
 
             mInterpolator = mDefaultInterpolator;
         }
-    }
-
-    public void setMinConfidence(float minConfidence){
-
-        mMinConfidence = minConfidence;
-    }
-
-    public void setMaxFaceNumber(int maxFaceNumber){
-
-        mMaxFaceNumber = maxFaceNumber;
     }
 
     public void setCenterFace(final boolean enabled) {
@@ -350,6 +338,16 @@ public class MasaccioImageView extends ImageView {
         }
 
         super.onDraw(canvas);
+    }
+
+    public void setMaxFaceNumber(final int maxFaceNumber) {
+
+        mMaxFaceNumber = maxFaceNumber;
+    }
+
+    public void setMinConfidence(final float minConfidence) {
+
+        mMinConfidence = minConfidence;
     }
 
     public void setPreScale(final float scale) {
@@ -705,7 +703,8 @@ public class MasaccioImageView extends ImageView {
 
         mMinConfidence = typedArray.getFloat(R.styleable.MasaccioImageView_min_confidence, 0);
 
-        mMaxFaceNumber = typedArray.getInteger(R.styleable.MasaccioImageView_max_face_number, MAX_FACES);
+        mMaxFaceNumber =
+                typedArray.getInteger(R.styleable.MasaccioImageView_max_face_number, MAX_FACES);
 
         mStartScale = typedArray.getFloat(R.styleable.MasaccioImageView_pre_scale, -1);
         mStartX = typedArray.getFloat(R.styleable.MasaccioImageView_pre_translate_x, 0);
@@ -793,7 +792,8 @@ public class MasaccioImageView extends ImageView {
             if (bitmap565 != null) {
 
                 final FaceDetector faceDetector =
-                        new FaceDetector(bitmap565.getWidth(), bitmap565.getHeight(), mMaxFaceNumber);
+                        new FaceDetector(bitmap565.getWidth(), bitmap565.getHeight(),
+                                         mMaxFaceNumber);
 
                 final int faceCount = faceDetector.findFaces(bitmap565, faces);
 
